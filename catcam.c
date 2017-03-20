@@ -10,10 +10,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void * thread_func ((void *) struct thread_data thread_struct) {
-		snprintf (thread_struct.nmap_command, sizeof(thread_struct.nmap_command), "nmap -p %s --open -oG - %s | awk -F'/| '  '/Ports.*tcp/ { print $2 \" \" $4 }' ",  "8080,80",  thread_struct.buff_IP_list);
+void * thread_func (void * thread_param) {
 
-		thread_struct.fd_nmap = popen (thread_struct.nmap_command, "r");
+		struct thread_data * thread_struct = (struct thread_data *) thread_param;
+		snprintf (thread_struct->nmap_command, sizeof(thread_struct->nmap_command), "nmap -p %s --open -oG - %s | awk -F'/| '  '/Ports.*tcp/ { print $2 \" \" $4 }' ",  "8080,80",  thread_struct->buff_IP_list);
+
+		thread_struct->fd_nmap = popen (thread_struct->nmap_command, "r");
 }
 
 
@@ -39,7 +41,7 @@ int main (int argc, char **argv) {
 		char	buff_IP_list [20];
 		char 	nmap_command [255];
 		FILE * 	fd_nmap;
-	} thread_struct;
+	} thread_param;
 
 
 	pthread_mutex_t mutex;
